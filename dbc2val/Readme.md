@@ -65,7 +65,6 @@ See "Steps for a local test with replaying a can dump file"
 1. Run the dbcfeeder.py
 
    ```bash
-   cd feeder_can
    ./dbcfeeder.py
    ```
 
@@ -78,7 +77,6 @@ See "Steps for a local test with replaying a can dump file"
 1. Run the dbcfeeder.py
 
    ```bash
-   cd feeder_can
    ./dbcfeeder.py
    ```
 
@@ -247,12 +245,12 @@ For KUKSA.val databroker, an architecture that requires Clients to know somehtin
 VCFRONT_brakeFluidLevel:
   minupdatedelay: 1000
   targets:
-    Vehicle.Chassis.Axle.Row1.Wheel.Left.Brake.FluidLevelLow:
+    Vehicle.Chassis.Axle.Row1.Wheel.Left.Brake.IsFluidLevelLow:
       transform:
         fullmapping:
           LOW: "true"
           NORMAL: "false"
-    Vehicle.Chassis.Axle.Row1.Wheel.Right.Brake.FluidLevelLow:
+    Vehicle.Chassis.Axle.Row1.Wheel.Right.Brake.IsFluidLevelLow:
       transform:
         fullmapping:
           LOW: "true"

@@ -54,11 +54,11 @@ class Kuksa_Client():
         self.client.stop()
 
     def setPosition(self, position):
-        self.client.setValue('Vehicle.Cabin.Infotainment.Navigation.CurrentLocation.Altitude', position['alt'])
-        self.client.setValue('Vehicle.Cabin.Infotainment.Navigation.CurrentLocation.Latitude', position["lat"])
-        self.client.setValue('Vehicle.Cabin.Infotainment.Navigation.CurrentLocation.Longitude', position["lon"])
-        self.client.setValue('Vehicle.Cabin.Infotainment.Navigation.CurrentLocation.Accuracy', position["hdop"])
-        self.client.setValue('Vehicle.Cabin.Infotainment.Navigation.CurrentLocation.Speed', position["speed"])
+        self.client.setValue('Vehicle.CurrentLocation.Altitude', position['alt'])
+        self.client.setValue('Vehicle.CurrentLocation.Latitude', position["lat"])
+        self.client.setValue('Vehicle.CurrentLocation.Longitude', position["lon"])
+        self.client.setValue('Vehicle.CurrentLocation.HorizontalAccuracy', position["hdop"])
+        self.client.setValue('Vehicle.Speed', position["speed"])
 
 class GPSD_Client():
     def __init__(self, config, consumer):
