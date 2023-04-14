@@ -1,7 +1,7 @@
 # Kuksa Feeders
 ![kuksa.val Logo](./doc/img/logo.png)
 
-This are data feeders for VSS based systems. The feeders here work with [KUKSA.val](https://github.com/eclipse/kuksa.val)
+This are data feeders for VSS based systems. The feeders here work with [KUKSA.val](https://github.com/eclipse/kuksa.val) 
 
 Name | Description
 ---- | -----------
