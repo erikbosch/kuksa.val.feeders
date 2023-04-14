@@ -1,0 +1,120 @@
+# This is a VSS example overlay that is to be used when generating vss_dbc.json in this repository
+# The content shall just be seen as examples that can be used for prototyping.
+# It does not in any way represent an official mapping.
+#
+# How to regenerate vss_dbc.json:
+#
+# 1. Decide which VSS version to use
+#
+# Two good places to check:
+# * See what versions KUKSA.val supports: https://github.com/eclipse/kuksa.val/tree/master/data/vss-core
+# * See what VSS releases that exists: https://github.com/COVESA/vehicle_signal_specification/releases
+#
+# (You can also also clone the VSS-repo and use whatever version you like)
+#
+# 2. Download Yaml file for selected verison.
+#
+# As of today part of a *.tar.gz file in https://github.com/COVESA/vehicle_signal_specification/releases
+#
+# 3. Regenerate the json file
+#
+#~/vss-tools/vspec2json.py -e vss2dbc,dbc -o dbc_overlay.vspec --no-uuid  -u ~/vehicle_signal_specification/spec/units.yaml --json-pretty vss_rel_3.1.1.yaml vss_dbc.json
+#
+# (For this you must typically have cloned https://github.com/COVESA/vss-tools)
+
+# Proposal: use "dbc" as (deprecated) alias for dbc2vss -> from CAN to VSS
+# Proposal: use "vss2dbc" -> from VSS to CAN
+#
+# For now do not care about interval/on_change
+# For now do not care if we want actual or target value - we might need a param for that
+# Keeping old "dbc" settings - theoretically we could use same file
+# but for conversion we may need different formulas
+#
+# No offset specified, but they may use a different reference point as real range is 0-5 and Volt as units
+# So likely they use some step engine or similar to control it.
+# Anyway, that means CAN range is up to 5/0.02 = 250, fits well with 8 bits.
+# So we want 250 to become 100 and 0 to become -100
+#  SG_ VCRIGHT_mirrorTiltXPosition : 33|8@1+ (0.02,0) [0|5] "V"  Receiver
+#
+# But in normal cantools functions by default (scaling==True) we interact with the "real" value, i.. in this case 0-5V
+# so -100 shall be 0 and +100 shall be 5
+# https://cantools.readthedocs.io/en/latest/#cantools.database.can.Database.decode_message
+#
+# I.e. mapping in this file is from VSS representation to whatever the DBC consider as "real"
+#
+# Convert with:
+#
+#~/vss-tools/vspec2json.py -e vss2dbc,dbc -o dbc_overlay.vspec --no-uuid  -u ~/vehicle_signal_specification/spec/units.yaml --json-pretty vss_rel_3.1.1.yaml vss_dbc.json
+#
+#
+# Theoretically we may use different signals in both directions
+# Idea: Have one vss2dbc and ond dbc2val running
+# Set left target value in client, check that vss2dbc gets it and sends out actual for right on CAN
+Vehicle.Body.Mirrors.Left.Tilt:
+  datatype: int8
+  type: actuator
+  dbc:
+    signal: VCLEFT_mirrorTiltYPosition
+    interval_ms: 100
+    transform:
+      math: "floor((x*40)-100)"
+  vss2dbc:
+    signal: VCLEFT_mirrorTiltYPosition
+    transform:
+      math: "(x+100)/40"
+
+Vehicle.Body.Mirrors.Left.Pan:
+  datatype: int8
+  type: actuator
+  dbc:
+    signal: VCLEFT_mirrorTiltXPosition
+    interval_ms: 100
+    transform:
+      math: "floor((x*40)-100)"
+  vss2dbc:
+    signal: VCLEFT_mirrorTiltXPosition
+    transform:
+      math: "(x+100)/40"
+
+
+# Mapping is interesting as it may not be 1:1
+# In this case VSS has only true/false so we can only map to two states
+
+Vehicle.Body.Trunk.Rear.IsOpen:
+  type: actuator
+  datatype: boolean
+  dbc:
+    interval_ms: 1000
+    signal: VCRIGHT_trunkLatchStatus
+    transform:
+       mapping:
+        - from: LATCH_AJAR
+          to: true
+        - from: LATCH_CLOSED
+          to: false
+        - from: LATCH_CLOSING
+          to: true
+        - from: LATCH_FAULT
+          to: true
+        - from: LATCH_OPENED
+          to: true
+        - from: LATCH_OPENING
+          to: true
+  vss2dbc:
+    signal: VCRIGHT_trunkLatchStatus
+    transform:
+       mapping:
+        - from: true
+          to: LATCH_OPENED
+        - from: false
+          to: LATCH_CLOSED
+
+# Signal with no conversion
+Vehicle.Powertrain.ElectricMotor.Temperature:
+  datatype: int16
+  type: sensor
+  dbc:
+    signal: PTC_rightTempIGBT
+    interval_ms: 1000
+  vss2dbc:
+    signal: PTC_rightTempIGBT
